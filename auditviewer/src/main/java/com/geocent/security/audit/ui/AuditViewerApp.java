@@ -2,6 +2,7 @@ package com.geocent.security.audit.ui;
 
 import com.geocent.security.audit.AttributeFactory;
 import com.geocent.security.audit.PEPAuditEvent;
+import com.geocent.security.audit.XACMLRequestFactory;
 import com.geocent.security.audit.ui.model.AuditTableModel;
 import com.sun.xacml.attr.AttributeValue;
 import java.awt.Dimension;
@@ -32,6 +33,8 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
     private JScrollPane scrollPane;
     private List<PEPAuditEvent> auditEvents;
     private AuditDetailPanelHandler handler;
+    private final String OPEN_RAW_EVENT = "Open Raw Event";
+    private final String CREATE_XACML_REQ = "Create XACML Request";
 
     private enum QueryType {
 
@@ -105,10 +108,10 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
 
     private JPopupMenu createTableContextMenu() {
         JPopupMenu popup = new JPopupMenu();
-        JMenuItem menuItem = new JMenuItem("Open Raw Event");
+        JMenuItem menuItem = new JMenuItem(OPEN_RAW_EVENT);
         menuItem.addActionListener(this);
 
-        JMenuItem menuItem2 = new JMenuItem("Replay Request");
+        JMenuItem menuItem2 = new JMenuItem(CREATE_XACML_REQ);
         menuItem2.addActionListener(this);
         popup.add(menuItem);
         popup.add(menuItem2);
@@ -121,13 +124,16 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
             List<PEPAuditEvent> searchResults = performSearch(searchField.getText(), QueryType.AND);
             loadTableData(searchResults);
             this.resultsLbl.setText("Found " + searchResults.size() + " matches of " + auditEvents.size() + " total records.");
-        } else if (ae.getActionCommand().equals("Open Raw Event")) {
+        } else if (ae.getActionCommand().equals(OPEN_RAW_EVENT)) {
             ListSelectionModel model = table.getSelectionModel();
             PEPAuditEvent e = ((AuditTableModel) table.getModel()).getAuditEventAt(model.getLeadSelectionIndex());
-            RawEventPopup event = new RawEventPopup(e.getRawEvent());
+            TextAreaPopup event = new TextAreaPopup(e.getRawEvent());
             event.setVisible(true);
-        } else if (ae.getActionCommand().equals("Replay Request")) {
-            JOptionPane.showMessageDialog(this, "This feature is not yet implemented.", "", JOptionPane.WARNING_MESSAGE);
+        } else if (ae.getActionCommand().equals(CREATE_XACML_REQ)) {
+            ListSelectionModel model = table.getSelectionModel();
+            PEPAuditEvent e = ((AuditTableModel) table.getModel()).getAuditEventAt(model.getLeadSelectionIndex());
+            TextAreaPopup req = new TextAreaPopup(XACMLRequestFactory.createXacmlRequest(e));
+            req.setVisible(true);
         }
     }
 
@@ -248,12 +254,12 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
         frame.setVisible(true);
     }
 
-    class RawEventPopup extends JDialog {
+    class TextAreaPopup extends JDialog {
 
         private JTextArea textArea;
         private JOptionPane optionPane;
 
-        public RawEventPopup(String info) {
+        public TextAreaPopup(String info) {
             super();
 
             textArea = new JTextArea();
