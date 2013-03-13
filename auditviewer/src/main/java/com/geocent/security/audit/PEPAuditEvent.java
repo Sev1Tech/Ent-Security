@@ -1,6 +1,11 @@
 package com.geocent.security.audit;
 
+import com.sun.xacml.ParsingException;
+import com.sun.xacml.attr.AttributeValue;
+import java.net.URI;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,21 +17,21 @@ import org.json.JSONObject;
 public class PEPAuditEvent extends Event {
 
     private JSONObject pepAuditJson;
-    private HashMap<String, String> subjectAttributes;
-    private HashMap<String, String> resourceAttributes;
-    private HashMap<String, String> actionAttributes;
-    private HashMap<String, String> environmentAttributes;
+    private Map<URI, AttributeValue> subjectMap;
+    private Map<URI, AttributeValue> resourceMap;
+    private Map<URI, AttributeValue> actionMap;
+    private Map<URI, AttributeValue> environmentMap;
     
-    public PEPAuditEvent(String rawEvent) throws JSONException {
+    public PEPAuditEvent(String rawEvent) throws JSONException, ParseException, ParsingException {
         super(rawEvent);
-        subjectAttributes = new HashMap<String, String>();
-        resourceAttributes = new HashMap<String, String>();
-        actionAttributes = new HashMap<String, String>();
-        environmentAttributes = new HashMap<String, String>();
+        subjectMap = new HashMap<URI, AttributeValue>();
+        resourceMap = new HashMap<URI, AttributeValue>();
+        actionMap = new HashMap<URI, AttributeValue>();
+        environmentMap = new HashMap<URI, AttributeValue>();
         parsePEPAuditStatement(rawEvent);
     }
     
-    private void parsePEPAuditStatement(String rawEvent) throws JSONException{
+    private void parsePEPAuditStatement(String rawEvent) throws JSONException, ParseException, ParsingException{
         pepAuditJson = new JSONObject(rawEvent.substring(rawEvent.indexOf("{\"PEP_AUDIT")));
         parseSubjectAttributes();
         parseResourceAttributes();
@@ -34,49 +39,54 @@ public class PEPAuditEvent extends Event {
         parseEnvironmentAttributes();
     }
     
-    private void parseSubjectAttributes() throws JSONException{
+    private void parseSubjectAttributes() throws JSONException, ParseException, ParsingException{
         JSONObject subject = pepAuditJson.getJSONArray("PEP_AUDIT")
                 .getJSONObject(0)
                 .getJSONObject("Request")
                 .getJSONObject("Subject");
-        subjectAttributes = getAttributeKeyValuePairs(subject);
+        subjectMap = getAttributeKeyValueMap(subject);
+        
     }
     
-    private void parseResourceAttributes() throws JSONException {
+    private void parseResourceAttributes() throws JSONException, ParseException, ParsingException {
         JSONObject resource = pepAuditJson.getJSONArray("PEP_AUDIT")
                 .getJSONObject(0)
                 .getJSONObject("Request")
                 .getJSONObject("Resource");
-        resourceAttributes = getAttributeKeyValuePairs(resource);
+        resourceMap = getAttributeKeyValueMap(resource);
     }
     
-    private void parseActionAttributes() throws JSONException {
+    private void parseActionAttributes() throws JSONException, ParseException, ParsingException {
         JSONObject action = pepAuditJson.getJSONArray("PEP_AUDIT")
                 .getJSONObject(0)
                 .getJSONObject("Request")
                 .getJSONObject("Action");
-        actionAttributes = getAttributeKeyValuePairs(action);
+        actionMap = getAttributeKeyValueMap(action);
         
     }
     
-    private void parseEnvironmentAttributes() throws JSONException {
+    private void parseEnvironmentAttributes() throws JSONException, ParseException, ParsingException {
         JSONObject environment = pepAuditJson.getJSONArray("PEP_AUDIT")
                 .getJSONObject(0)
                 .getJSONObject("Request")
                 .getJSONObject("Environment");
-        environmentAttributes = getAttributeKeyValuePairs(environment);
+        environmentMap = getAttributeKeyValueMap(environment);
     }
     
-    private HashMap<String, String> getAttributeKeyValuePairs(JSONObject obj) throws JSONException{
-        HashMap<String, String> attributeKeyValuePairs = new HashMap<String, String>();
+    private HashMap<URI, AttributeValue> getAttributeKeyValueMap(JSONObject obj) throws JSONException, ParseException, ParsingException{
+        HashMap<URI, AttributeValue> attributeKeyValueMap = new HashMap<URI, AttributeValue>();
         JSONArray attributes = obj.getJSONArray("Attribute");
         
         for (int x = 0; x < attributes.length(); x++){
             JSONObject jsonObj = attributes.getJSONObject(x);
             JSONObject attributeInfo = jsonObj.getJSONObject("@attributes");
-            attributeKeyValuePairs.put(attributeInfo.getString("AttributeId"), jsonObj.getString("AttributeValue"));
+            AttributeValue attrVal = AttributeFactory.getAttribute(
+                    attributeInfo.getString("DataType"),
+                    jsonObj.getString("AttributeValue"));
+            attributeKeyValueMap.put(URI.create(attributeInfo.getString("AttributeId")), attrVal);
         }
-        return attributeKeyValuePairs;
+        
+        return attributeKeyValueMap;
     }
     
     public String getDecision() throws JSONException{
@@ -87,53 +97,53 @@ public class PEPAuditEvent extends Event {
         return decision.getString("Decision");
     }
     
-    public String getSubjectAttributeById(String attributeId){
-        return subjectAttributes.get(attributeId);
+    public Object getSubjectAttributeById(String attributeId){
+        return subjectMap.get(URI.create(attributeId));
     }
     
-    public String getResourceAttributeById(String attributeId){
-        return resourceAttributes.get(attributeId);
+    public Object getResourceAttributeById(String attributeId){
+        return resourceMap.get(URI.create(attributeId));
     }
     
-    public String getActionAttributeById(String attributeId){
-        return actionAttributes.get(attributeId);
+    public Object getActionAttributeById(String attributeId){
+        return actionMap.get(URI.create(attributeId));
     }
     
-    public String getEnvrionmentAttributeById(String attributeId){
-        return environmentAttributes.get(attributeId);
+    public Object getEnvrionmentAttributeById(String attributeId){
+        return environmentMap.get(URI.create(attributeId));
     }
     
-    public HashMap<String, String> getSubjectAttributes(){
-        return subjectAttributes;
+    public Map<URI, AttributeValue> getSubjectAttributes(){
+        return subjectMap;
     }
     
-    public HashMap<String, String> getResourceAttributes(){
-        return resourceAttributes;
+    public Map<URI, AttributeValue> getResourceAttributes(){
+        return resourceMap;
     }
     
-    public HashMap<String, String> getActionAttributes(){
-        return actionAttributes;
+    public Map<URI, AttributeValue> getActionAttributes(){
+        return actionMap;
     }
     
-    public HashMap<String, String> getEnvironmentAttributes(){
-        return environmentAttributes;
+    public Map<URI, AttributeValue> getEnvironmentAttributes(){
+        return environmentMap;
     }
     
     public boolean containsAttribute(String attributeId){
-        if (subjectAttributes.containsKey(attributeId))
+        if (subjectMap.containsKey(URI.create(attributeId)))
             return true;
-        if (resourceAttributes.containsKey(attributeId))
+        if (resourceMap.containsKey(URI.create(attributeId)))
             return true;
-        if (actionAttributes.containsKey(attributeId))
+        if (actionMap.containsKey(URI.create(attributeId)))
             return true;
-        if (environmentAttributes.containsKey(attributeId))
+        if (environmentMap.containsKey(URI.create(attributeId)))
             return true;
         else
             return false;
     }
     
-    public String getAttributeById(String attributeId){
-        String value = null;
+    public Object getAttributeById(String attributeId){
+        Object value = null;
         for(int x = 0; x < 4; x++){
             value = getAttributeById(attributeId, x);
             if (value != null)
@@ -142,7 +152,7 @@ public class PEPAuditEvent extends Event {
         return value;
     }
     
-    private String getAttributeById(String attributeId, int index){
+    private Object getAttributeById(String attributeId, int index){
         switch(index){
             case 0:
                 return getSubjectAttributeById(attributeId);

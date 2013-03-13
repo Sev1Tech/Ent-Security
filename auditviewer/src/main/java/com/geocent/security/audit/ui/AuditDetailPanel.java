@@ -1,6 +1,8 @@
 package com.geocent.security.audit.ui;
 
+import com.geocent.security.audit.AttributeFactory;
 import com.geocent.security.audit.PEPAuditEvent;
+import com.sun.xacml.attr.AttributeValue;
 import java.awt.GridLayout;
 import java.util.Iterator;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class AuditDetailPanel extends JPanel {
                 sb.append("<html><body>");
                 sb.append(pairs.getKey());
                 sb.append("=");
-                sb.append(pairs.getValue());
+                sb.append(AttributeFactory.getStringValue((AttributeValue) pairs.getValue()));
                 sb.append("</br></body></html>");
                 label.setText(sb.toString());
                 subjectPanel.add(label);
@@ -90,7 +92,7 @@ public class AuditDetailPanel extends JPanel {
                 sb.append("<html><body>");
                 sb.append(pairs.getKey());
                 sb.append("=");
-                sb.append(pairs.getValue());
+                sb.append(AttributeFactory.getStringValue((AttributeValue) pairs.getValue()));
                 sb.append("</br></body></html>");
                 label.setText(sb.toString());
                 resourcePanel.add(label);
@@ -112,7 +114,7 @@ public class AuditDetailPanel extends JPanel {
                 sb.append("<html><body>");
                 sb.append(pairs.getKey());
                 sb.append("=");
-                sb.append(pairs.getValue());
+                sb.append(AttributeFactory.getStringValue((AttributeValue) pairs.getValue()));
                 sb.append("</br></body></html>");
                 label.setText(sb.toString());
                 actionPanel.add(label);
@@ -134,7 +136,7 @@ public class AuditDetailPanel extends JPanel {
                 sb.append("<html><body>");
                 sb.append(pairs.getKey());
                 sb.append("=");
-                sb.append(pairs.getValue());
+                sb.append(AttributeFactory.getStringValue((AttributeValue) pairs.getValue()));
                 sb.append("</br></body></html>");
                 label.setText(sb.toString());
                 envPanel.add(label);

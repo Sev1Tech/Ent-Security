@@ -1,7 +1,9 @@
 package com.geocent.security.audit.ui;
 
+import com.geocent.security.audit.AttributeFactory;
 import com.geocent.security.audit.PEPAuditEvent;
 import com.geocent.security.audit.ui.model.AuditTableModel;
+import com.sun.xacml.attr.AttributeValue;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.*;
@@ -153,8 +155,6 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
                 }
             }
         }
-
-        System.out.println("Search Results Count: " + searchResults.size());
         return searchResults;
     }
 
@@ -164,7 +164,7 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
         if (event.containsAttribute(tokenPair[0])) {
             isMatch = true;
             if (tokenPair.length > 1) {
-                String value = event.getAttributeById(tokenPair[0]);
+                String value = AttributeFactory.getStringValue((AttributeValue) event.getAttributeById(tokenPair[0]));
                 if (!(value != null && value.equals(tokenPair[1]))) {
                     isMatch = false;
                 }
@@ -265,7 +265,6 @@ public final class AuditViewerApp extends JPanel implements ActionListener, List
 
             setContentPane(optionPane);
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
 
             pack();
         }

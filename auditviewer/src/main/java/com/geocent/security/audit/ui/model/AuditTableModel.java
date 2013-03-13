@@ -1,6 +1,7 @@
 package com.geocent.security.audit.ui.model;
 
 import com.geocent.security.audit.PEPAuditEvent;
+import com.sun.xacml.attr.StringAttribute;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
@@ -49,16 +50,16 @@ public class AuditTableModel extends AbstractTableModel {
                 case 0:
                     return auditEvents.get(row).getTimeStamp();
                 case 1:
-                    return ((PEPAuditEvent) auditEvents.get(row)).getSubjectAttributeById("urn:vba.va.gov:css:common:userName");
+                    return ((StringAttribute)((PEPAuditEvent) auditEvents.get(row)).getSubjectAttributeById("urn:vba.va.gov:css:common:userName")).getValue();
                 case 2:
-                    return ((PEPAuditEvent) auditEvents.get(row)).getResourceAttributeById("urn:oasis:names:tc:xacml:1.0:resource:resource-id");
+                    return ((StringAttribute)((PEPAuditEvent) auditEvents.get(row)).getResourceAttributeById("urn:oasis:names:tc:xacml:1.0:resource:resource-id")).getValue();
                 case 3:
-                    return ((PEPAuditEvent) auditEvents.get(row)).getActionAttributeById("urn:oasis:names:tc:xacml:1.0:action:action-id");
+                    return ((StringAttribute)((PEPAuditEvent) auditEvents.get(row)).getActionAttributeById("urn:oasis:names:tc:xacml:1.0:action:action-id")).getValue();
                 case 4:
                     return ((PEPAuditEvent) auditEvents.get(row)).getDecision();
             }
         } catch (Exception ex) {
-            System.out.println("Exception: " + ex.toString());
+            //The value might not exist
         }
         return null;
     }
