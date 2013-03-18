@@ -1,6 +1,6 @@
-package com.geocent.security.audit.ui.model;
+package com.geocent.security.audit.model;
 
-import com.geocent.security.audit.PEPAuditEvent;
+import com.geocent.security.audit.event.PEPAuditEvent;
 import com.sun.xacml.attr.StringAttribute;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;

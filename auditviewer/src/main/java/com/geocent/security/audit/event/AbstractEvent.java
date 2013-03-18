@@ -1,4 +1,4 @@
-package com.geocent.security.audit;
+package com.geocent.security.audit.event;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,14 +8,14 @@ import java.util.Date;
  *
  * @author bpriest
  */
-public abstract class Event {
+public abstract class AbstractEvent {
 
     private String rawEvent;
     private Date eventTime;
     private String dateTimePattern = "yyyy-MM-dd HH:mm:ss";
     private SimpleDateFormat format;
 
-    public Event(String rawEvent) {
+    public AbstractEvent(String rawEvent) {
         this.rawEvent = rawEvent;
         format = new SimpleDateFormat(dateTimePattern);
         parseDateTime();

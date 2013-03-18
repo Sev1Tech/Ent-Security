@@ -1,5 +1,4 @@
-
-package com.geocent.security.audit;
+package com.geocent.security.audit.event;
 
 import com.sun.xacml.ParsingException;
 import com.sun.xacml.attr.*;
@@ -11,7 +10,7 @@ import java.text.ParseException;
  */
 public class AttributeFactory {
     
-    public static AttributeValue getAttribute(String dataType, String value) throws ParsingException, ParseException{
+    public static AttributeValue getAttribute(String dataType, String value) throws ParsingException, ParseException {
         
         if(dataType.equals(StringAttribute.identifier))
             return StringAttribute.getInstance(value);

@@ -1,7 +1,7 @@
-package com.geocent.security.audit.ui;
+package com.geocent.security.audit.view;
 
-import com.geocent.security.audit.AttributeFactory;
-import com.geocent.security.audit.PEPAuditEvent;
+import com.geocent.security.audit.event.AttributeFactory;
+import com.geocent.security.audit.event.PEPAuditEvent;
 import com.sun.xacml.attr.AttributeValue;
 import java.awt.GridLayout;
 import java.util.Iterator;
@@ -18,17 +18,17 @@ import org.json.JSONException;
  *
  * @author bpriest
  */
-public class AuditDetailPanel extends JPanel {
+public class EventDetailPanel extends JPanel {
 
     private PEPAuditEvent detailRecord;
 
-    public AuditDetailPanel(PEPAuditEvent record) {
+    public EventDetailPanel(PEPAuditEvent record) {
         super();
         this.detailRecord = record;
         updateAuditDetail(detailRecord);
     }
 
-    public AuditDetailPanel() {
+    public EventDetailPanel() {
         super();
     }
 
@@ -159,7 +159,7 @@ public class AuditDetailPanel extends JPanel {
             try {
                 decision.setText(event.getDecision());
             } catch (JSONException ex) {
-                Logger.getLogger(AuditDetailPanel.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EventDetailPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         decisionPanel.add(decision);

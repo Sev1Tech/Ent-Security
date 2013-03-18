@@ -1,4 +1,4 @@
-package com.geocent.security.audit;
+package com.geocent.security.audit.event;
 
 import com.sun.xacml.ParsingException;
 import com.sun.xacml.attr.AttributeValue;
@@ -14,7 +14,7 @@ import org.json.JSONObject;
  *
  * @author bpriest
  */
-public class PEPAuditEvent extends Event {
+public class PEPAuditEvent extends AbstractEvent {
 
     private JSONObject pepAuditJson;
     private Map<URI, AttributeValue> subjectMap;

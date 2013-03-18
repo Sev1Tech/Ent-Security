@@ -1,17 +1,17 @@
-package com.geocent.security.audit.ui;
+package com.geocent.security.audit.view;
 
-import com.geocent.security.audit.PEPAuditEvent;
+import com.geocent.security.audit.event.PEPAuditEvent;
 import java.util.EventListener;
 
 /**
  *
  * @author bpriest
  */
-public class AuditDetailPanelHandler implements EventListener {
+public class EventDetailPanelHandler implements EventListener {
 
-    private AuditDetailPanel detailPanel;
+    private EventDetailPanel detailPanel;
 
-    public AuditDetailPanelHandler(AuditDetailPanel panel) {
+    public EventDetailPanelHandler(EventDetailPanel panel) {
         this.detailPanel = panel;
     }
 
