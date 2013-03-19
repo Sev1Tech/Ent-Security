@@ -3,6 +3,7 @@ package com.geocent.security.audit.view;
 import com.geocent.security.audit.event.PEPAuditEvent;
 import com.geocent.security.audit.model.AuditModel;
 import com.geocent.security.audit.model.AuditTableModel;
+import com.geocent.security.audit.worker.LogIndexingTask;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -30,8 +31,10 @@ public class AuditView extends JFrame {
     private JScrollPane scrollPane;
     private JButton queryBtn;
     private JPopupMenu contextMenu;
+    private JMenuBar menuBar;
     private JMenuItem rawEventMenuItem;
     private JMenuItem xacmlRequestMenuItem;
+    private ListSelectionModel listSelectionModel;
     private EventDetailPanelHandler detailPanelHandler;
     private final String OPEN_RAW_EVENT = "Open Raw Event";
     private final String CREATE_XACML_REQ = "Create XACML Request";
@@ -43,10 +46,18 @@ public class AuditView extends JFrame {
         contentPanel.setOpaque(true);
         this.setContentPane(contentPanel);
         this.setLayout(new BoxLayout(contentPanel, BoxLayout.PAGE_AXIS));
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         parseAuditLog();
 
+        menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+        JMenuItem openMenuItem = new JMenuItem("Open");
+        fileMenu.add(openMenuItem);
+        setJMenuBar(menuBar);
+        
         resultsLbl = new JLabel();
-        resultsLbl.setText("Loaded " + AuditModel.getInstance().getAuditEvents().size() + " total records.");
+        
         JPanel searchPanel = new JPanel();
         searchPanel.setLayout(new GridLayout(2, 1));
         searchPanel.setMaximumSize(new Dimension(2000, 100));
@@ -73,6 +84,13 @@ public class AuditView extends JFrame {
         add(searchPanel);
 
         auditTable = new JTable();
+
+        auditTable.setPreferredScrollableViewportSize(new Dimension(800, 200));
+        auditTable.setFillsViewportHeight(true);
+        listSelectionModel = auditTable.getSelectionModel();
+        auditTable.setSelectionModel(listSelectionModel);
+        auditTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
         loadTableData(AuditModel.getInstance().getAuditEvents());
 
         //Create the scroll pane and add the table to it.
@@ -143,48 +161,19 @@ public class AuditView extends JFrame {
     }
 
     private void parseAuditLog() throws JSONException {
-
         JFileChooser jc = new JFileChooser();
         int returnVal = jc.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = jc.getSelectedFile();
-            BufferedReader reader = null;
-
-            try {
-                reader = new BufferedReader(new FileReader(file));
-                String text = null;
-
-                while ((text = reader.readLine()) != null) {
-                    if (text.contains("PEP_AUDIT")) {
-                        AuditModel.getInstance().getAuditEvents().add(new PEPAuditEvent(text));
-                    }
-                }
-            } catch (Exception e) {
-                System.out.println("Exception: " + e.getMessage());
-            } finally {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
+            new LogIndexingTask(jc.getSelectedFile(), this).execute();
         }
     }
 
     public void loadTableData(List<PEPAuditEvent> events) {
-        auditTable.setModel(new AuditTableModel(events));
-        auditTable.setPreferredScrollableViewportSize(new Dimension(800, 200));
-        auditTable.setFillsViewportHeight(true);
-
-        ListSelectionModel listSelectionModel = auditTable.getSelectionModel();
-        auditTable.setSelectionModel(listSelectionModel);
-        auditTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        auditTable.setModel(new AuditTableModel(events));     
     }
 
     public void addTableSelectionListener(ListSelectionListener listener) {
-        ListSelectionModel listSelectionModel = auditTable.getSelectionModel();
         listSelectionModel.addListSelectionListener(listener);
     }
 
@@ -200,4 +189,11 @@ public class AuditView extends JFrame {
         this.xacmlRequestMenuItem.addActionListener(listener);
     }
 
+    public ListSelectionModel getListSelectionModel() {
+        return listSelectionModel;
+    }
+
+    public void setListSelectionModel(ListSelectionModel listSelectionModel) {
+        this.listSelectionModel = listSelectionModel;
+    }
 }

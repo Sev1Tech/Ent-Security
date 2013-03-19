@@ -14,6 +14,8 @@ public final class AuditApp {
 
     public static void main(String[] args) throws JSONException {
 
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "AuditViewer");
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
