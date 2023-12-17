@@ -12,7 +12,7 @@
     <url>http://maven.apache.org</url>
     <repositories>
         <repository>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
             <id>swing-layout</id>
             <layout>default</layout>
             <name>Repository for library Library[swing-layout]</name>
